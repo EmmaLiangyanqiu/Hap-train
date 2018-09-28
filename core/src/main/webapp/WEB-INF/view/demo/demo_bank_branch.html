@@ -1,0 +1,346 @@
+<#include "../include/header.html">
+    <script type="text/javascript">
+        var bankId = '${RequestParameters.bankId!0}';//获取bankId通过freemarker标签
+        var queryFlag = '${RequestParameters.queryFlag!}';//获取queryFlag通过freemarker标签,写！0是若为空则赋值0，不写的话也要写！则赋值为空
+
+
+        var viewModel = Hap.createGridViewModel("#grid", {
+            model: {},
+            saveFunction: function () {
+                Hap.submitForm({
+                    url: '${base.contextPath}/hbi/demo/bank/submit',
+                    formModel: viewModel.model,
+                    grid: {"demoBankBranchList": $("#grid")},
+                    success: function (data) {
+                        if (data.success) {
+                            if (!bankId || bankId == 0) {
+                                //回写主键
+                                bankId = data.rows[0].bankId;
+                            }
+                           /* $('#grid').data('kendoGrid').dataSource.read();*/
+                            Hap.showToast({
+                                type: "success",
+                                message: '<@spring.message "保存成功"/>'
+                            });
+                        }
+                    },
+                    failure: function (arg) {
+                        Hap.showToast({
+                            type: "error",
+                            message: '<@spring.message "保存失败"/>'
+                        });
+                    }
+                });
+            }
+
+        });
+
+    </script>
+    <style>
+        /*表格标题居中显示*/
+        .k-grid th {
+            text-align: center !important;
+        }
+
+        /*表格列居中*/
+        .k-grid tr {
+            text-align: center !important;
+        }
+    </style>
+    <body>
+    <script src="${base.contextPath}/common/code?bankTypeData=HBI.DEMO.BANK.BANK_TYPE" type="text/javascript"></script>
+    <div id="page-content">
+        <div class="panel" id="query-form" style="">
+            <form class="form-horizontal" id="myForm">
+                <div class="panel-body">
+                    <div class="row">
+                        <!--银行简码 文本-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "银行简码"/></label>
+                                <div class="col-xs-8">
+                                    <input id="bankCode" required type="text" data-role="maskedtextbox"
+                                           style="float:left;width:150px;margin-right:5px;"
+                                           data-bind="value:model.bankCode" class="k-textbox">
+                                    <!--表单验证-->
+                                    <div style="position:absolute;z-index: 2;left:90%;top:-2px;"><span
+                                            data-for="bankCode" class="k-invalid-msg"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--银行名称 LOV-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "银行名称"/></label>
+                                <div class="col-xs-8">
+                                    <input id="bankName" required type="text" style="width:150px;margin-right:5px;"
+                                           data-bind="value:model.bankName" class="k-textbox">
+                                    <div style="position:absolute;z-index: 2;left:90%;top:-2px;"><span
+                                            data-for="bankName" class="k-invalid-msg"></span></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!--银行类型 下拉框-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "hbi.demo.bank.bankType"/></label>
+                                <div class="col-xs-8">
+                                    <input id="bankType" required type="text" style="width:150px;margin-right:5px;"
+                                           data-bind="value:model.bankType">
+                                    <div style="position:absolute;z-index: 2;left:90%;top:-2px;"><span
+                                            data-for="bankType" class="k-invalid-msg"></span></div>
+                                </div>
+                                <script>
+                                    $("#bankType").kendoComboBox({
+                                        dataSource: bankTypeData,
+                                        valuePrimitive: true,
+                                        dataTextField: "meaning",
+                                        dataValueField: "value"
+                                    });
+                                </script>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <!--截止时间 日期-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "截止日期"/></label>
+                                <div class="col-xs-8">
+                                    <input id="expirationDate" style="width:150px;margin-right:5px;"
+                                           data-bind="value:model.expirationDate">
+                                </div>
+                                <script>
+                                    $("#expirationDate").kendoDatePicker({
+                                        format: "{0:yyyy-MM-dd}",
+                                    }).data("kendoDatePicker");
+                                </script>
+                            </div>
+                        </div>
+                        <!--描述-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "描述"/></label>
+                                <div class="col-xs-8">
+                                    <input id="description" type="text" data-role="maskedtextbox"
+                                           style="float:left;width:150px;margin-right:5px;"
+                                           data-bind="value:model.description" class="k-textbox">
+                                </div>
+                            </div>
+                        </div>
+                        <!--备注-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "备注"/></label>
+                                <div class="col-xs-8">
+                                    <input id="comments" type="text" data-role="maskedtextbox"
+                                           style="float:left;width:150px;margin-right:5px;"
+                                           data-bind="value:model.comments" class="k-textbox">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <span class="btn btn-primary k-grid-add pull-left" style="float: left;margin-right:5px;"
+                                  data-bind="click:create"><@spring.message "hap.new"/></span>
+                            <span class="btn btn-success k-grid-save-changes" data-bind="click:saveFunction"
+                                  style="float:left;margin-right:5px;"><@spring.message "hap.save"/></span>
+                            <span class="btn btn-danger pull-left" data-bind="click:remove" style="float: left;"><@spring.message "hap.delete"/></span>
+                        </div>
+                        <div class="col-xs-4"></div>
+                        <div class="col-xs-4"></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <script>kendo.bind($('#query-form'), viewModel);</script><!--绑定queryform里的数据-->
+        <div style="clear:both">
+            <div id="grid"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        //初始化头数据
+        if(bankId){
+            viewModel.model.set("bankId",bankId);
+            //获取头数据
+            $.ajax({
+                type:"post",
+                url:"${base.contextPath}/hbi/demo/bank/query",
+                data:{bankId:bankId},
+                success:function (json) {
+                    var row=json.rows[0]||{};
+                    for (var k in row){
+                        viewModel.model.set(k,row[k]);
+                    }
+                }
+            });
+        }
+        Hap.initEnterQuery('#query-form', viewModel.query);
+        var BaseUrl = _basePath;
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: BaseUrl + "/hbi/demo/bank/branch/query",
+                    type: "POST",
+                    dataType: "json"
+                },
+                update: {
+                    url: BaseUrl + "/hbi/demo/bank/branch/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                destroy: {
+                    url: BaseUrl + "/hbi/demo/bank/branch/remove",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                create: {
+                    url: BaseUrl + "/hbi/demo/bank/branch/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        var datas = Hap.prepareSubmitParameter(options, type)
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return Hap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "bankBranchId",
+                    fields: {
+                        branchName: {validation: {required: true}},
+                        branchType: {validation: {required: true}},
+                        branchNo: {validation: {required: true}},
+                        address: {validation: {required: true}},
+                    }
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            resizable: true,
+            scrollable: true,
+            navigatable: false,
+            selectable: 'multiple, rowbox',
+            dataBound: function () {
+                if (parent.autoResizeIframe) {
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                }
+            },
+            pageable: {
+                pageSizes: [5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            columns: [
+                {
+                    field: "branchName",
+                    title: '<@spring.message "demobankbranch.branchname"/>',
+                    width: 120
+                },
+                {
+                    field: "branchType",
+                    title: '<@spring.message "demobankbranch.branchtype"/>',
+                    width: 120,
+                    template: function (dataItem) {
+                        var v = dataItem.branchType;
+                        $.each(bankTypeData, function (i, n) {
+                            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                                v = n.meaning;
+                                return false;
+                            }
+                        })
+                        return v;
+                    },
+                    editor: function (container, options) {
+                        $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoComboBox({
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                dataSource: bankTypeData
+                            });
+                    } /*渲染及变成下拉框*/
+                },
+                {
+                    field: "branchNo",
+                    title: '<@spring.message "demobankbranch.branchno"/>',
+                    width: 120
+                },
+                {
+                    field: "swiftCode",
+                    title: '<@spring.message "demobankbranch.swiftcode"/>',
+                    width: 120
+                },
+                {
+                    field: "address",
+                    title: '<@spring.message "demobankbranch.address"/>',
+                    width: 120
+                },
+                {
+                    field: "description",
+                    title: '<@spring.message "demobankbranch.description"/>',
+                    width: 120
+                },
+                {
+                    field: "orderDate",
+                    title: '<@spring.message "demobankbranch.expirationdate"/>',
+                    width: 120
+                },
+                {
+                    field: "comments",
+                    title: '<@spring.message "demobankbranch.comments"/>',
+                    width: 120
+                },
+            ],
+            editable: true
+        });
+        if(queryFlag==1){
+            $("#bankCode").attr("readonly",true).css("background", "#EEEEEE");
+            $("#bankName").attr("readonly",true).css("background", "#EEEEEE");
+            /*$("#bankType").data("kendoComboBox").enable(false);
+            $("#bankName").data("kendoLov").enable(false);
+            $("#bankName").attr("readonly",true).css("background", "#EEEEEE");
+            $("#orderDate").data("kendoDatePicker").readonly();
+            $("#orderDate").css("background", "#EEEEEE");
+            $("#orderDate").attr("readonly",true).css("background", "#EEEEEE");*/
+            $("#comments").attr("readonly",true).css("background", "#EEEEEE");
+            $("#grid").data("kendoGrid").setOptions({
+                editable: false
+            });
+        }
+
+
+
+        // form表单校验
+        window.onload = function () {
+            var validator = $("#myForm").kendoValidator({
+                messages: {
+                    required: '<@spring.message "必输"/>',
+                },
+                rules: {}                                //定义规则
+            }).data("kendoValidator");
+        }
+    </script>
+    </body>
+    </html>

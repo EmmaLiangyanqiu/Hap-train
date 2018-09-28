@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="hbi.sal.mapper.OmOrderHeadersMapper">
+    <resultMap id="BaseResultMap" type="hbi.sal.dto.OmOrderHeaders">
+        <result column="HEADER_ID" property="headerId" jdbcType="DECIMAL" />
+        <result column="ORDER_NUMBER" property="orderNumber" jdbcType="VARCHAR" />
+        <result column="COMPANY_ID" property="companyId" jdbcType="DECIMAL" />
+        <result column="ORDER_DATE" property="orderDate" jdbcType="DATE" />
+        <result column="ORDER_STATUS" property="orderStatus" jdbcType="VARCHAR" />
+        <result column="CUSTOMER_ID" property="customerId" jdbcType="DECIMAL" />
+    </resultMap>
+    <insert id="myInsert">
+        insert into  hap_om_order_headers(HEADER_ID,ORDER_NUMBER,COMPANY_ID,ORDER_DATE,ORDER_STATUS,CUSTOMER_ID)
+        VALUES (#{headerId},#{orderNumber},#{companyId},#{orderDate},#{orderStatus},#{customerId})
+    </insert>
+    <select id="myQueryById" resultMap="BaseResultMap">
+        SELECT * FROM hap_om_order_headers
+        WHERE HEADER_ID=#{headerId}
+    </select>
+
+</mapper>

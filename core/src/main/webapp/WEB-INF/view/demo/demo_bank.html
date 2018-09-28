@@ -1,0 +1,395 @@
+<#include "../include/header.html">
+    <script type="text/javascript">
+        var viewModel = Hap.createGridViewModel("#grid", {
+            model: {},
+            newResource: function (e) {
+                var win = $('#newWin').kendoWindow({
+                    iframe: true,
+                    draggable: false,
+                    content: '${base.contextPath}/demo/demo_bank_branch.html',
+                }).data('kendoWindow');
+                win.title('<@spring.message "hap.new"/>'); //提示为新建的标题
+                win.maximize().open();                       //显示最大
+            },
+            exportFunc: function (e) {
+                //获取grid数据
+                var originData = dataSource.data();
+                console.log(originData);
+                excelData(originData);
+            },
+        });
+    </script>
+    <style>
+        /*表格标题居中显示*/
+        .k-grid th {
+            text-align: center !important;
+        }
+
+        /*表格列居中*/
+        .k-grid tr {
+            text-align: center !important;
+        }
+    </style>
+    <body>
+    <script src="${base.contextPath}/common/code?bankTypeData=HBI.DEMO.BANK.BANK_TYPE" type="text/javascript"></script>
+    <div id="page-content">
+        <div class="panel" id="query-form" style="">
+            <form class="form-horizontal" id="myForm">
+                <div class="panel-body">
+                    <div class="row">
+                        <!--银行简码 文本-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "银行简码"/></label>
+                                <div class="col-xs-8">
+                                    <input id="bankCode" type="text" data-role="maskedtextbox"
+                                           style="float:left;width:150px;margin-right:5px;"
+                                           data-bind="value:model.bankCode" class="k-textbox">
+                                </div>
+                            </div>
+                        </div>
+                        <!--银行名称 LOV-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "银行名称"/></label>
+                                <div class="col-xs-8">
+                                    <input id="bankName" type="text" style="width:150px;margin-right:5px;"
+                                           data-bind="value:model.bankName,text:model.bankName">
+                                    <script>
+                                        $("#bankName").kendoLov($.extend(${lovProvider.getLov(base.contextPath, base.locale, "HBI_DEMO_BANK_NAME")}, {}))
+                                    </script>
+                                </div>
+                            </div>
+                        </div>
+                        <!--银行类型 下拉框-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "hbi.demo.bank.bankType"/></label>
+                                <div class="col-xs-8">
+                                    <input id="bankType" required type="text" style="width:150px;margin-right:5px;"
+                                           data-bind="value:model.bankType">
+                                </div>
+                                <script>
+                                    $("#bankType").kendoComboBox({
+                                        dataSource: bankTypeData,
+                                        valuePrimitive: true,
+                                        dataTextField: "meaning",
+                                        dataValueField: "value"
+                                    });
+                                </script>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <!--截止时间 日期-->
+                        <div class="col-xs-4">
+                            <div class="form-group">
+                                <label class="col-md-4 control-label"><@spring.message
+                                    "截止日期"/></label>
+                                <div class="col-xs-8">
+                                    <input id="expirationDate" style="width:150px;margin-right:5px;"
+                                           data-bind="value:model.expirationDate">
+                                </div>
+                                <script>
+                                    $("#expirationDate").kendoDatePicker({
+                                        format: "{0:yyyy-MM-dd}",
+                                    }).data("kendoDatePicker");
+                                </script>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <!--修改添加了id-->
+                        <div id="btngroup" class="col-xs-4">
+                            <span id="add" class="btn btn-primary k-grid-add pull-left" style="float: left;margin-right:5px;"
+                                  data-bind="click:newResource"><@spring.message "hap.new"/></span>
+                            <span class="btn btn-danger pull-left" data-bind="click:remove" style="float: left;"><@spring.message "hap.delete"/></span>
+                            <!--<span class="btn btn-primary pull-left" style="float: left;margin-left:5px;"
+                                  data-bind="click:exportFunc"><@spring.message "hap.exportexcel"/></span>-->
+                            <span class="btn btn-primary " style="float:left;margin-left:5px;"  onclick='Hap.exportExcel("hbi_demo_bank","${base.contextPath}/hbi/demo/bank/query")'><i class="fa fa-file-excel-o" style="margin-right:3px;"></i><@spring.message "hap.exportexcel"/></span>
+                            <span class="btn btn-primary pull-left" style="float: left;margin-left:5px;"
+                                  data-bind="click:exportPDF" ><@spring.message "导出PDF"/></span>
+                        </div>
+                        <div class="col-xs-4">
+                            <span class="btn btn-primary  k-grid-excel" style="float:left;" onclick='Hap.importExcel("hbi_demo_bank")' ><i class="fa fa-arrow-circle-up" style="margin-right:3px;"></i><@spring.message "excel.import"/></span>
+                        </div>
+                        <div class="col-xs-4">
+                            <span class="btn btn-default pull-right" type="button" data-bind="click:reset"><i
+                                    class="fa fa-eraser"
+                                    style="margin-right: 3px;"></i><@spring.message "hap.reset"/></span>
+                            <span class="btn btn-primary pull-right" data-bind="click:query" type="submit"
+                                  style="margin-right: 3px;"><i class="fa fa-search"></i><@spring.message "hap.query"/></span>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <script>kendo.bind($('#query-form'), viewModel);</script><!--绑定queryform里的数据-->
+        <!--预留的新建窗口-->
+        <div id="newWin" style="display: none"></div>
+        <div style="clear:both">
+            <div id="grid"></div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+        Hap.initEnterQuery('#query-form', viewModel.query);
+        var BaseUrl = _basePath;
+        dataSource = new kendo.data.DataSource({
+            transport: {
+                read: {
+                    url: BaseUrl + "/hbi/demo/bank/query",
+                    type: "POST",
+                    dataType: "json"
+                },
+                update: {
+                    url: BaseUrl + "/hbi/demo/bank/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                destroy: {
+                    url: BaseUrl + "/hbi/demo/bank/remove",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                create: {
+                    url: BaseUrl + "/hbi/demo/bank/submit",
+                    type: "POST",
+                    contentType: "application/json"
+                },
+                parameterMap: function (options, type) {
+                    if (type !== "read" && options.models) {
+                        var datas = Hap.prepareSubmitParameter(options, type)
+                        return kendo.stringify(datas);
+                    } else if (type === "read") {
+                        return Hap.prepareQueryParameter(viewModel.model.toJSON(), options)
+                    }
+                }
+            },
+            batch: true,
+            serverPaging: true,
+            pageSize: 10,
+            schema: {
+                data: 'rows',
+                total: 'total',
+                model: {
+                    id: "bankId",
+                    fields: {}
+                }
+            }
+        });
+
+        $("#grid").kendoGrid({
+            dataSource: dataSource,
+            resizable: true,
+            scrollable: true,
+            navigatable: false,
+            selectable: 'multiple, rowbox',
+            dataBound: function () {
+                if (parent.autoResizeIframe) {
+                    parent.autoResizeIframe('${RequestParameters.functionCode!}')
+                }
+            },
+            pageable: {
+                pageSizes: [5, 10, 20, 50],
+                refresh: true,
+                buttonCount: 5
+            },
+            columns: [
+
+                {
+                    field: "",
+                    title: '<@spring.message "操作"/>',
+                    width: 120,
+                    template:function (dataItem) {
+                        var  html='<a href="javascript:void(0)" onclick="view('+dataItem.bankId+')" style="text-decoration:underline;color:blue;cursor:pointer;float:left;margin-right:10px"><@spring.message "hap.view"/></a>'+
+                            '<a href="javascript:void(0)" onclick="edit('+dataItem.bankId+')" style="text-decoration:underline;color:blue;cursor:pointer;float:left" ><@spring.message "hap.edit"/></a>'
+
+                        return html;
+                    }
+                },
+                {
+                    field: "bankCode",
+                    title: '<@spring.message "demobank.bankcode"/>',
+                    /*attribute:"align-center",   每一列设置居中*/
+                    width: 120
+                },
+                {
+                    field: "bankName",
+                    title: '<@spring.message "demobank.bankname"/>',
+                    width: 120
+                },
+                {
+                    field: "bankType",
+                    title: '<@spring.message "hbi.demo.bank.bankType"/>',
+                    width: 120,
+                    template: function (dataItem) {
+                        var v = dataItem.bankType;
+                        $.each(bankTypeData, function (i, n) {
+                            if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                                v = n.meaning;
+                                return false;
+                            }
+                        })
+                        return v;
+                    },
+                    editor: function (container, options) {
+                        $('<input name="' + options.field + '"/>')
+                            .appendTo(container)
+                            .kendoComboBox({
+                                dataTextField: "meaning",
+                                dataValueField: "value",
+                                valuePrimitive: true,
+                                dataSource: bankTypeData
+                            });
+                    } /*渲染及变成下拉框*/
+                },
+                {
+                    field: "description",
+                    title: '<@spring.message "demobank.description"/>',
+                    width: 120
+                },
+                {
+                    field: "orderDate",
+                    title: '<@spring.message "demobank.expirationdate"/>',
+                    width: 120
+                },
+                {
+                    field: "comments",
+                    title: '<@spring.message "demobank.comments"/>',
+                    width: 120
+                },
+            ],
+            editable: false  /*不可编辑*/
+        });
+
+        //查看
+        function view(bankId) {
+            var win = $('#newWin').kendoWindow({
+                iframe: true,
+                draggable: false,
+                content: '${base.contextPath}/demo/demo_bank_branch.html?queryFlag=1&bankId=' + bankId,
+            }).data('kendoWindow');
+            win.title('<@spring.message "查看"/>');
+            win.maximize().open();
+        }
+        //编辑
+        function edit(bankId) {
+            var win = $('#newWin').kendoWindow({
+                iframe: true,
+                draggable: false,
+                content: '${base.contextPath}/demo/demo_bank_branch.html?bankId=' + bankId,//'$(base.contextPath)/demo/demo_bank_branch.html? 系统给的路径
+            }).data('kendoWindow');
+            win.title('<@spring.message "编辑"/>');
+            win.maximize().open();
+
+        }
+       //导出数据
+        function excelData(originData) {
+
+            /**
+             * 1.修改源数据
+             * 修改源数据中需要转换的值，如快码字段("Y"->"是","N"->"否")，时间格式等
+             */
+            if (originData.length > 0){ //如果有选中数据则导出数据
+                for (var i in originData){
+                    //originData[i].bankType = originData[i].bankType == 'Y' ? '<@spring.message "hap.yes"/>' : '<@spring.message "hap.no"/>';
+                    //时间转换
+                    /*originData[i].date = kendo.toString(kendo.parseDate(originData[i].date), "yyyy-MM-dd HH:mm:ss");*/
+                    originData[i].orderDate = kendo.toString(kendo.parseDate(originData[i].orderDate), "yyyy-MM-dd ");
+                     debugger;
+                    //快码
+                    var v = originData[i].bankType;
+                    $.each(bankTypeData, function (i, n) {
+                        if ((n.value || '').toLowerCase() == (v || '').toLowerCase()) {
+                            v = n.meaning;
+                            originData[i].bankType=v;
+                        }
+                    })
+                }
+            }else {
+                return;
+            }
+
+            /**
+             * 2.设置excel格式与内容
+             */
+
+            /**
+             * 2.1设置excel表格标题
+             */
+            var excelTitles = ['<@spring.message "简称"/>','<@spring.message "名称"/>','<@spring.message "类型"/>','<@spring.message "描述"/>','<@spring.message "截止时间"/>','<@spring.message "备注"/>'];
+            //标题数组
+            var excelHeader = [];
+            for(var i in excelTitles){
+                excelHeader.push({
+                    value: excelTitles[i],                    //标题文字
+                    background: '#92cddc',                 //标题背景颜色
+                    color: '#000',                         //标题字体颜色
+                    textAlign: 'center',                     //文字水平对齐方式
+                    verticalAlign: 'center',                  //文字竖直对齐方式
+                    borderLeft: {size: 1 ,color:"#ddd"},       //左边框大小及颜色
+                    borderRight: {size: 1 ,color:"#ddd"},      //右边框大小及颜色
+                    borderBottom: { size: 1 ,color:"#ddd"},   //下边框大小及颜色
+                    borderTop: { size: 1 ,color:"#ddd"},      //上边框大小及颜色
+                })
+            }
+
+            /**
+             * 2.2设置最终导出数据
+             */
+                //最终导出数据
+            var excelData = [];
+            //2.2.1将标题添加至导出数据
+            excelData.push({
+                cells: excelHeader
+            });
+            //2.2.2将源数据添加至导出数据
+            for(var i=0;i < originData.length;i++){
+                excelData.push({
+                    cells: [
+                        { value: originData[i].bankCode, borderBottom: { size: 1 ,color:"#ddd"},borderRight: { size: 1 ,color:"#ddd"},verticalAlign: 'center', textAlign: 'center',background: '#ff9' },
+                        { value: originData[i].bankName, verticalAlign: 'center', textAlign: 'center'/* background: '#FFF19E' */},
+                        { value: originData[i].bankType, verticalAlign: 'center', textAlign: 'center'/* background: '#FFF19E' */},
+                        { value: originData[i].description, verticalAlign: 'center', textAlign: 'center'/* background: '#FFF19E' */},
+                        { value: originData[i].orderDate, verticalAlign: 'center', textAlign: 'center'/* background: '#FFF19E' */},
+                        { value: originData[i].comments, verticalAlign: 'center', textAlign: 'center'/* background: '#FFF19E' */}
+                    ],
+                });
+            }
+            //2.2.3设置列宽度与样式
+            var columns = [];
+            for(var i = 0;i < excelTitles.length;i++){
+                columns.push({ width: 150 });
+            }
+
+            /**
+             * 3.配置导出excel sheets,格式与文件名
+             */
+            var workbook = new kendo.ooxml.Workbook({
+                date: new Date(),
+                sheets: [ // sheet数组，如需导出多个sheet在此完成
+                    {
+                        name: '银行数据',       //sheet 名称
+                        frozenRows: 1,         //冻结第一行
+                        frozenColumns: 1,      //冻结第一列
+                        columns: columns,      //列
+                        rows: excelData        //数据
+                    }
+                ]
+            });
+
+            //设置文件名
+            kendo.saveAs({
+                dataURI: workbook.toDataURL(), //数据源
+                fileName: '银行导出测试' //文件名
+            });
+        }
+    </script>
+    </body>
+    </html>
